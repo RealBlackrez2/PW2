@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PKS College - Student Registration Form</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      padding: 30px;
+      font-family: "Poppins", sans-serif;
+    }
+    .form-card {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    h3 {
+      color: #444;
+      font-weight: 600;
+    }
+    .student-image-box {
+      width:120px;
+      height:120px;
+      border:2px dashed #cfd8dc;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-right:16px;
+      border-radius:8px;
+      overflow:hidden;
+      background:#f8f9fa;
+      transition: 0.3s ease;
+    }
+    .student-image-box:hover {
+      border-color:#90caf9;
+      background:#f1f8ff;
+    }
+    .small-muted { font-size:0.85rem; color:#777; }
+    .form-control:focus, .form-select:focus {
+      border-color: #90caf9;
+      box-shadow: 0 0 0 0.2rem rgba(144,202,249,.25);
+    }
+    .btn-primary {
+      background: #42a5f5;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #1e88e5;
+    }
+    .modal .modal-body { font-size:1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="form-card">
+    <h3 class="text-center mb-2">POLITEKNIK KUCHING SARAWAK</h3>
+    <p class="text-center text-muted mb-4">Student Registration Form</p>
+
+    <form id="regForm" novalidate>
+      <!-- Image Upload -->
+      <div class="row mb-3">
+        <div class="col-auto">
+          <div class="student-image-box" id="previewBox">
+            <span class="small-muted">No Image</span>
+          </div>
+        </div>
+        <div class="col">
+          <label for="studentImage" class="form-label">Student image:</label>
+          <input class="form-control" type="file" id="studentImage" accept="image/*" required>
+          <div class="small-muted mt-1">(less than 5 Mb)</div>
+          <div id="imgError" class="text-danger small mt-1" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Name Fields -->
+      <div class="mb-3">
+        <label for="studentName" class="form-label">Student Name</label>
+        <input type="text" class="form-control" id="studentName"
+               placeholder="Full Name"
+               onblur="validateName(this)"
+               onchange="toAllCaps(this)"
+               required>
+        <div id="nameHelp" class="form-text text-danger" style="display:none;">Name is required.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="fatherName" class="form-label">Father's Name</label>
+        <input type="text" class="form-control" id="fatherName"
+               placeholder="Father's Full Name"
+               onchange="toAllCaps(this)" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="motherName" class="form-label">Mother's Name</label>
+        <input type="text" class="form-control" id="motherName"
+               placeholder="Mother's Full Name"
+               onchange="toAllCaps(this)" required>
+      </div>
+
+      <!-- Gender -->
+      <div class="mb-3">
+        <label class="form-label d-block">Gender</label>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="gender" id="male" value="male" checked>
+          <label class="form-check-label" for="male">Male</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+          <label class="form-check-label" for="female">Female</label>
+        </div>
+      </div>
+
+      <!-- Level / Department Hybrid -->
+      <div class="mb-3 row">
+        <div class="col-md-6">
+          <label for="level" class="form-label">Level</label>
+          <select id="level" class="form-select" onchange="toggleOther('level')" required>
+            <option selected disabled>-- Select Level --</option>
+            <option>Diploma</option>
+            <option>Bachelor</option>
+            <option>Master</option>
+            <option>PhD</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="levelOther" class="form-control mt-2" placeholder="Please specify" style="display:none;">
+        </div>
+        <div class="col-md-6">
+          <label for="department" class="form-label">Department</label>
+          <select id="department" class="form-select" onchange="toggleOther('department')" required>
+            <option selected disabled>-- Select Department --</option>
+            <option>Computer Engineering</option>
+            <option>Information Technology</option>
+            <option>Business</option>
+            <option>Design</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="departmentOther" class="form-control mt-2" placeholder="Please specify" style="display:none;">
+        </div>
+      </div>
+
+      <!-- DOB / Email -->
+      <div class="mb-3 row">
+        <div class="col-md-6">
+          <label for="dob" class="form-label">Date of Birth</label>
+          <input type="date" id="dob" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label for="email" class="form-label">E-mail</label>
+          <input type="email" id="email" class="form-control" placeholder="email@xyz.com"
+                 onfocus="showEmailHint()" onblur="hideEmailHint()" required>
+          <div id="emailHint" class="form-text" style="display:none;">We will only use this for contact.</div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="mb-3">
+        <label for="tel" class="form-label">Tel/Mobile</label>
+        <input type="tel" id="tel" class="form-control" placeholder="0X-XXXX-XXXX" required>
+      </div>
+
+      <hr>
+
+      <h5 class="text-center mb-3">Address</h5>
+
+      <div class="mb-3">
+        <label for="state" class="form-label">State</label>
+        <input type="text" id="state" class="form-control" placeholder="State" required>
+      </div>
+      <div class="mb-3">
+        <label for="city" class="form-label">City</label>
+        <input type="text" id="city" class="form-control" placeholder="City" required>
+      </div>
+      <div class="mb-3">
+        <label for="postcode" class="form-label">Postcode</label>
+        <input type="text" id="postcode" class="form-control" placeholder="Postcode" required>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary me-2">Register</button>
+        <button type="reset" class="btn btn-secondary" id="resetBtn">Reset</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Registration Successful</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Your details have been saved!
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Incomplete Form</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Please fill in all required fields before submitting.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function toAllCaps(el) {
+      if (!el) return;
+      el.value = el.value.toUpperCase();
+    }
+
+    function validateName(el) {
+      const help = document.getElementById('nameHelp');
+      if (!el.value.trim()) {
+        help.style.display = 'block';
+        el.classList.add('is-invalid');
+      } else {
+        help.style.display = 'none';
+        el.classList.remove('is-invalid');
+        el.classList.add('is-valid');
+      }
+    }
+
+    function showEmailHint() {
+      document.getElementById('emailHint').style.display = 'block';
+    }
+    function hideEmailHint() {
+      document.getElementById('emailHint').style.display = 'none';
+    }
+
+    const studentImage = document.getElementById('studentImage');
+    const imgError = document.getElementById('imgError');
+    const previewBox = document.getElementById('previewBox');
+
+    studentImage.addEventListener('change', function () {
+      imgError.style.display = 'none';
+      previewBox.innerHTML = '<span class="small-muted">No Image</span>';
+      const f = this.files[0];
+      if (!f) return;
+
+      if (f.size > 5 * 1024 * 1024) {
+        imgError.textContent = 'File is too large. Maximum allowed is 5 MB.';
+        imgError.style.display = 'block';
+        this.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewBox.innerHTML = '<img src="' + e.target.result + '" alt="preview" style="max-width:100%; max-height:100%;">';
+      };
+      reader.readAsDataURL(f);
+    });
+
+    function toggleOther(field) {
+      const select = document.getElementById(field);
+      const otherInput = document.getElementById(field + 'Other');
+      if (select.value === 'Other') {
+        otherInput.style.display = 'block';
+      } else {
+        otherInput.style.display = 'none';
+        otherInput.value = '';
+      }
+    }
+
+    const regForm = document.getElementById('regForm');
+    regForm.addEventListener('submit', function (evt) {
+      evt.preventDefault();
+
+      const requiredFields = regForm.querySelectorAll('[required]');
+      let allFilled = true;
+
+      requiredFields.forEach(f => {
+        if (!f.value.trim()) {
+          f.classList.add('is-invalid');
+          allFilled = false;
+        } else {
+          f.classList.remove('is-invalid');
+          f.classList.add('is-valid');
+        }
+      });
+
+      if (!allFilled) {
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        return;
+      }
+
+      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+      successModal.show();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function () {
+      previewBox.innerHTML = '<span class="small-muted">No Image</span>';
+      imgError.style.display = 'none';
+      document.getElementById('nameHelp').style.display = 'none';
+      document.querySelectorAll('.is-valid, .is-invalid').forEach(f => f.classList.remove('is-valid', 'is-invalid'));
+      document.querySelectorAll('#levelOther, #departmentOther').forEach(o => {
+        o.style.display = 'none';
+        o.value = '';
+      });
+    });
+  </script>
+</body>
+</html>
