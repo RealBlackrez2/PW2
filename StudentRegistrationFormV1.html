@@ -230,102 +230,110 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    function toAllCaps(el) {
-      if (!el) return;
-      el.value = el.value.toUpperCase();
+  function toAllCaps(el) {
+    if (!el) return;
+    el.value = el.value.toUpperCase();
+  }
+
+  function validateName(el) {
+    const help = document.getElementById('nameHelp');
+    if (!el.value.trim()) {
+      help.style.display = 'block';
+      el.classList.add('is-invalid');
+    } else {
+      help.style.display = 'none';
+      el.classList.remove('is-invalid');
+      el.classList.add('is-valid');
+    }
+  }
+
+  function showEmailHint() {
+    document.getElementById('emailHint').style.display = 'block';
+  }
+  function hideEmailHint() {
+    document.getElementById('emailHint').style.display = 'none';
+  }
+
+  const studentImage = document.getElementById('studentImage');
+  const imgError = document.getElementById('imgError');
+  const previewBox = document.getElementById('previewBox');
+
+  studentImage.addEventListener('change', function () {
+    imgError.style.display = 'none';
+    previewBox.innerHTML = '<span class="small-muted">No Image</span>';
+    const f = this.files[0];
+    if (!f) return;
+
+    if (f.size > 5 * 1024 * 1024) {
+      imgError.textContent = 'File is too large. Maximum allowed is 5 MB.';
+      imgError.style.display = 'block';
+      this.value = '';
+      return;
     }
 
-    function validateName(el) {
-      const help = document.getElementById('nameHelp');
-      if (!el.value.trim()) {
-        help.style.display = 'block';
-        el.classList.add('is-invalid');
-      } else {
-        help.style.display = 'none';
-        el.classList.remove('is-invalid');
-        el.classList.add('is-valid');
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewBox.innerHTML = '<img src="' + e.target.result + '" alt="preview" style="max-width:100%; max-height:100%;">';
+    };
+    reader.readAsDataURL(f);
+  });
+
+  function toggleOther(field) {
+    const select = document.getElementById(field);
+    const otherInput = document.getElementById(field + 'Other');
+    if (select.value === 'Other') {
+      otherInput.style.display = 'block';
+    } else {
+      otherInput.style.display = 'none';
+      otherInput.value = '';
+    }
+  }
+
+  const regForm = document.getElementById('regForm');
+  regForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+
+    const requiredFields = regForm.querySelectorAll('[required]');
+    let allFilled = true;
+
+    requiredFields.forEach(f => {
+      // Check if select has a disabled selected option
+      if (f.tagName === 'SELECT' && (f.value === '' || f.selectedIndex === 0)) {
+        f.classList.add('is-invalid');
+        allFilled = false;
+      } 
+      // Normal text/date/email input check
+      else if (!f.value.trim()) {
+        f.classList.add('is-invalid');
+        allFilled = false;
+      } 
+      else {
+        f.classList.remove('is-invalid');
+        f.classList.add('is-valid');
       }
-    }
-
-    function showEmailHint() {
-      document.getElementById('emailHint').style.display = 'block';
-    }
-    function hideEmailHint() {
-      document.getElementById('emailHint').style.display = 'none';
-    }
-
-    const studentImage = document.getElementById('studentImage');
-    const imgError = document.getElementById('imgError');
-    const previewBox = document.getElementById('previewBox');
-
-    studentImage.addEventListener('change', function () {
-      imgError.style.display = 'none';
-      previewBox.innerHTML = '<span class="small-muted">No Image</span>';
-      const f = this.files[0];
-      if (!f) return;
-
-      if (f.size > 5 * 1024 * 1024) {
-        imgError.textContent = 'File is too large. Maximum allowed is 5 MB.';
-        imgError.style.display = 'block';
-        this.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = e => {
-        previewBox.innerHTML = '<img src="' + e.target.result + '" alt="preview" style="max-width:100%; max-height:100%;">';
-      };
-      reader.readAsDataURL(f);
     });
 
-    function toggleOther(field) {
-      const select = document.getElementById(field);
-      const otherInput = document.getElementById(field + 'Other');
-      if (select.value === 'Other') {
-        otherInput.style.display = 'block';
-      } else {
-        otherInput.style.display = 'none';
-        otherInput.value = '';
-      }
+    if (!allFilled) {
+      const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+      errorModal.show();
+      return;
     }
 
-    const regForm = document.getElementById('regForm');
-    regForm.addEventListener('submit', function (evt) {
-      evt.preventDefault();
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    successModal.show();
+  });
 
-      const requiredFields = regForm.querySelectorAll('[required]');
-      let allFilled = true;
-
-      requiredFields.forEach(f => {
-        if (!f.value.trim()) {
-          f.classList.add('is-invalid');
-          allFilled = false;
-        } else {
-          f.classList.remove('is-invalid');
-          f.classList.add('is-valid');
-        }
-      });
-
-      if (!allFilled) {
-        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        errorModal.show();
-        return;
-      }
-
-      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-      successModal.show();
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    previewBox.innerHTML = '<span class="small-muted">No Image</span>';
+    imgError.style.display = 'none';
+    document.getElementById('nameHelp').style.display = 'none';
+    document.querySelectorAll('.is-valid, .is-invalid').forEach(f => f.classList.remove('is-valid', 'is-invalid'));
+    document.querySelectorAll('#levelOther, #departmentOther').forEach(o => {
+      o.style.display = 'none';
+      o.value = '';
     });
+  });
+</script>
 
-    document.getElementById('resetBtn').addEventListener('click', function () {
-      previewBox.innerHTML = '<span class="small-muted">No Image</span>';
-      imgError.style.display = 'none';
-      document.getElementById('nameHelp').style.display = 'none';
-      document.querySelectorAll('.is-valid, .is-invalid').forEach(f => f.classList.remove('is-valid', 'is-invalid'));
-      document.querySelectorAll('#levelOther, #departmentOther').forEach(o => {
-        o.style.display = 'none';
-        o.value = '';
-      });
-    });
-  </script>
 </body>
 </html>
